@@ -1,5 +1,5 @@
-﻿/// OTP Phone Verify - A beautiful Flutter package for phone verification
-/// 
+/// OTP Phone Verify - A beautiful Flutter package for phone verification
+///
 /// This library provides a simple and customizable way to verify phone numbers
 /// using OTP codes with beautiful popup dialogs.
 library otp_phone_verify;

@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'otp_config.dart';
 import 'otp_result.dart';
@@ -27,7 +27,7 @@ class OtpPhoneVerifyService {
       );
 
       final data = jsonDecode(response.body) as Map<String, dynamic>;
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         return OtpSendResult.fromJson(data);
       } else {
@@ -42,13 +42,14 @@ class OtpPhoneVerifyService {
   }
 
   /// Verify OTP code
-  Future<OtpVerifyResult> verifyOtp(String phoneNumber, String otpCode, {String? requestId}) async {
+  Future<OtpVerifyResult> verifyOtp(String phoneNumber, String otpCode,
+      {String? requestId}) async {
     try {
       final body = <String, dynamic>{
         'phone': phoneNumber,
         'otp': otpCode,
       };
-      
+
       if (requestId != null) {
         body['request_id'] = requestId;
       }
@@ -60,7 +61,7 @@ class OtpPhoneVerifyService {
       );
 
       final data = jsonDecode(response.body) as Map<String, dynamic>;
-      
+
       if (response.statusCode == 200) {
         return OtpVerifyResult.fromJson(data);
       } else {
@@ -75,13 +76,14 @@ class OtpPhoneVerifyService {
   }
 
   /// Resend OTP to phone number
-  Future<OtpSendResult> resendOtp(String phoneNumber, {String? requestId}) async {
+  Future<OtpSendResult> resendOtp(String phoneNumber,
+      {String? requestId}) async {
     try {
       final body = <String, dynamic>{
         'phone': phoneNumber,
         'otp_length': config.otpLength,
       };
-      
+
       if (requestId != null) {
         body['request_id'] = requestId;
       }
@@ -93,7 +95,7 @@ class OtpPhoneVerifyService {
       );
 
       final data = jsonDecode(response.body) as Map<String, dynamic>;
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         return OtpSendResult.fromJson(data);
       } else {

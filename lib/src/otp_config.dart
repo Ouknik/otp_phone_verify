@@ -1,4 +1,4 @@
-﻿/// OTP Configuration class
+/// OTP Configuration class
 /// Contains API credentials for WhatsOTP service
 class OtpConfig {
   /// WhatsOTP API base URL (fixed)

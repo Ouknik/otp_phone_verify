@@ -1,4 +1,4 @@
-﻿/// OTP Translations - Multi-language support
+/// OTP Translations - Multi-language support
 /// Users can customize all text strings used in the dialog
 
 class OtpTranslations {
@@ -86,14 +86,16 @@ class OtpTranslations {
     this.invalidOtpMessage = 'Invalid verification code',
     this.expiredOtpMessage = 'Code has expired. Please request a new one',
     this.networkErrorMessage = 'Network error. Please check your connection',
-    this.rateLimitMessage = 'Too many attempts. Please wait before trying again',
+    this.rateLimitMessage =
+        'Too many attempts. Please wait before trying again',
     this.invalidPhoneMessage = 'Please enter a valid phone number',
     this.enterOtpMessage = 'Enter the 6-digit code sent to',
     this.resendCountdownText = 'Resend in {seconds}s',
     this.loadingText = 'Please wait...',
     this.verifyingText = 'Verifying...',
     this.sendingText = 'Sending...',
-    this.maxAttemptsMessage = 'Maximum attempts reached. Please try again later',
+    this.maxAttemptsMessage =
+        'Maximum attempts reached. Please try again later',
     this.appName = 'App',
   });
 

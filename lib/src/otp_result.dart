@@ -1,4 +1,4 @@
-﻿/// OTP Result classes
+/// OTP Result classes
 /// Contains the result models for OTP operations
 
 /// Result of sending OTP

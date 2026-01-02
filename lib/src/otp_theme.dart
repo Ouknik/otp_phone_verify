@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 /// OTP Dialog Theme
 /// Customizable theme for the OTP verification dialog

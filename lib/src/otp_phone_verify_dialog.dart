@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pinput/pinput.dart';
@@ -222,9 +222,9 @@ class _OtpPhoneVerifyDialogState extends State<OtpPhoneVerifyDialog>
     // LOCAL VERIFICATION: Check OTP code locally if available
     if (_otpCode != null && _otpCode!.isNotEmpty) {
       if (!mounted) return;
-      
+
       setState(() => _isLoading = false);
-      
+
       if (otp == _otpCode) {
         // OTP matches! Success
         if (widget.theme.enableHapticFeedback) {
@@ -656,9 +656,7 @@ class _OtpPhoneVerifyDialogState extends State<OtpPhoneVerifyDialog>
           width: double.infinity,
           height: 52,
           child: ElevatedButton(
-            onPressed: _isLoading
-                ? null
-                : (_otpSent ? _verifyOtp : _sendOtp),
+            onPressed: _isLoading ? null : (_otpSent ? _verifyOtp : _sendOtp),
             style: ElevatedButton.styleFrom(
               backgroundColor: widget.theme.primaryColor,
               foregroundColor: Colors.white,
@@ -705,6 +703,3 @@ class _OtpPhoneVerifyDialogState extends State<OtpPhoneVerifyDialog>
     );
   }
 }
-
-
-
