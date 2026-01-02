@@ -4,7 +4,7 @@ import 'otp_config.dart';
 import 'otp_result.dart';
 
 /// OTP Phone Verification Service
-/// Handles all API communication with the OTP server
+/// Handles all API communication with WhatsOTP
 class OtpPhoneVerifyService {
   final OtpConfig config;
   final http.Client _client;
@@ -17,134 +17,107 @@ class OtpPhoneVerifyService {
   /// Send OTP to phone number
   Future<OtpSendResult> sendOtp(String phoneNumber) async {
     try {
-      final uri = Uri.parse('${config.baseUrl}/api/otp/send');
-
-      if (config.debugMode) {
-        print('[OTP] Sending OTP to: $phoneNumber');
-        print('[OTP] URL: $uri');
-      }
-
       final response = await _client.post(
-        uri,
-        headers: config.headers,
+        Uri.parse(config.sendOtpEndpoint),
+        headers: config.getHeaders(),
         body: jsonEncode({
           'phone': phoneNumber,
+          'otp_length': config.otpLength,
         }),
       );
 
-      if (config.debugMode) {
-        print('[OTP] Response status: ${response.statusCode}');
-        print('[OTP] Response body: ${response.body}');
-      }
-
       final data = jsonDecode(response.body) as Map<String, dynamic>;
-      return OtpSendResult.fromJson(data);
-    } on http.ClientException catch (e) {
-      if (config.debugMode) {
-        print('[OTP] Network error: $e');
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return OtpSendResult.fromJson(data);
+      } else {
+        return OtpSendResult.error(
+          data['message'] ?? data['error'] ?? 'Failed to send OTP',
+          code: data['code']?.toString(),
+        );
       }
-      return OtpSendResult.error('Network error', code: 'NETWORK_ERROR');
     } catch (e) {
-      if (config.debugMode) {
-        print('[OTP] Error: $e');
-      }
-      return OtpSendResult.error('An error occurred', code: 'UNKNOWN_ERROR');
+      return OtpSendResult.error('Network error: $e');
     }
   }
 
   /// Verify OTP code
-  Future<OtpVerifyResult> verifyOtp(String phoneNumber, String otpCode) async {
+  Future<OtpVerifyResult> verifyOtp(String phoneNumber, String otpCode, {String? requestId}) async {
     try {
-      final uri = Uri.parse('${config.baseUrl}/api/otp/verify');
-
-      if (config.debugMode) {
-        print('[OTP] Verifying OTP for: $phoneNumber');
+      final body = <String, dynamic>{
+        'phone': phoneNumber,
+        'otp': otpCode,
+      };
+      
+      if (requestId != null) {
+        body['request_id'] = requestId;
       }
 
       final response = await _client.post(
-        uri,
-        headers: config.headers,
-        body: jsonEncode({
-          'phone': phoneNumber,
-          'otp': otpCode,
-        }),
+        Uri.parse(config.verifyOtpEndpoint),
+        headers: config.getHeaders(),
+        body: jsonEncode(body),
       );
 
-      if (config.debugMode) {
-        print('[OTP] Verify response: ${response.statusCode}');
-        print('[OTP] Response body: ${response.body}');
-      }
-
       final data = jsonDecode(response.body) as Map<String, dynamic>;
-      return OtpVerifyResult.fromJson(data);
-    } on http.ClientException catch (e) {
-      if (config.debugMode) {
-        print('[OTP] Network error: $e');
+      
+      if (response.statusCode == 200) {
+        return OtpVerifyResult.fromJson(data);
+      } else {
+        return OtpVerifyResult.error(
+          data['message'] ?? data['error'] ?? 'Failed to verify OTP',
+          code: data['code']?.toString(),
+        );
       }
-      return OtpVerifyResult.error('Network error', code: 'NETWORK_ERROR');
     } catch (e) {
-      if (config.debugMode) {
-        print('[OTP] Error: $e');
-      }
-      return OtpVerifyResult.error('An error occurred', code: 'UNKNOWN_ERROR');
+      return OtpVerifyResult.error('Network error: $e');
     }
   }
 
-  /// Resend OTP using request ID
-  Future<OtpSendResult> resendOtp(String requestId) async {
+  /// Resend OTP to phone number
+  Future<OtpSendResult> resendOtp(String phoneNumber, {String? requestId}) async {
     try {
-      final uri = Uri.parse('${config.baseUrl}/api/otp/resend');
-
-      if (config.debugMode) {
-        print('[OTP] Resending OTP for request: $requestId');
+      final body = <String, dynamic>{
+        'phone': phoneNumber,
+        'otp_length': config.otpLength,
+      };
+      
+      if (requestId != null) {
+        body['request_id'] = requestId;
       }
 
       final response = await _client.post(
-        uri,
-        headers: config.headers,
-        body: jsonEncode({
-          'request_id': requestId,
-        }),
+        Uri.parse(config.resendOtpEndpoint),
+        headers: config.getHeaders(),
+        body: jsonEncode(body),
       );
 
-      if (config.debugMode) {
-        print('[OTP] Resend response: ${response.statusCode}');
-      }
-
       final data = jsonDecode(response.body) as Map<String, dynamic>;
-      return OtpSendResult.fromJson(data);
-    } on http.ClientException catch (e) {
-      if (config.debugMode) {
-        print('[OTP] Network error: $e');
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return OtpSendResult.fromJson(data);
+      } else {
+        return OtpSendResult.error(
+          data['message'] ?? data['error'] ?? 'Failed to resend OTP',
+          code: data['code']?.toString(),
+        );
       }
-      return OtpSendResult.error('Network error', code: 'NETWORK_ERROR');
     } catch (e) {
-      if (config.debugMode) {
-        print('[OTP] Error: $e');
-      }
-      return OtpSendResult.error('An error occurred', code: 'UNKNOWN_ERROR');
+      return OtpSendResult.error('Network error: $e');
     }
   }
 
   /// Get account balance
-  Future<Map<String, dynamic>?> getBalance() async {
+  Future<Map<String, dynamic>> getBalance() async {
     try {
-      final uri = Uri.parse('${config.baseUrl}/api/otp/balance');
-
       final response = await _client.get(
-        uri,
-        headers: config.headers,
+        Uri.parse(config.balanceEndpoint),
+        headers: config.getHeaders(),
       );
 
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body) as Map<String, dynamic>;
-      }
-      return null;
+      return jsonDecode(response.body) as Map<String, dynamic>;
     } catch (e) {
-      if (config.debugMode) {
-        print('[OTP] Balance error: $e');
-      }
-      return null;
+      return {'error': 'Network error: $e'};
     }
   }
 

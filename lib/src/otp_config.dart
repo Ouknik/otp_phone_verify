@@ -1,20 +1,17 @@
 ﻿/// OTP Configuration class
-/// Contains all the configuration options for the OTP verification service
+/// Contains API credentials for WhatsOTP service
 class OtpConfig {
-  /// The base URL of the OTP API
-  final String baseUrl;
+  /// WhatsOTP API base URL (fixed)
+  static const String baseUrl = 'https://whatsotp.me';
 
-  /// The API key for authentication
+  /// Your API Key from WhatsOTP
   final String apiKey;
 
-  /// The API secret for authentication
+  /// Your API Secret from WhatsOTP
   final String apiSecret;
 
-  /// OTP code length (default: 6)
+  /// OTP length (default 6 digits)
   final int otpLength;
-
-  /// OTP expiry time in seconds (default: 300 = 5 minutes)
-  final int expirySeconds;
 
   /// Enable/disable resend functionality
   final bool allowResend;
@@ -25,53 +22,44 @@ class OtpConfig {
   /// Maximum resend attempts (default: 3)
   final int maxResendAttempts;
 
-  /// Custom headers for API requests
-  final Map<String, String>? customHeaders;
-
-  /// Enable debug logging
-  final bool debugMode;
+  /// Custom headers (optional)
+  final Map<String, String>? headers;
 
   const OtpConfig({
-    required this.baseUrl,
     required this.apiKey,
     required this.apiSecret,
     this.otpLength = 6,
-    this.expirySeconds = 300,
     this.allowResend = true,
     this.resendCooldownSeconds = 60,
     this.maxResendAttempts = 3,
-    this.customHeaders,
-    this.debugMode = false,
+    this.headers,
   });
 
-  /// Create config from environment variables or secure storage
-  factory OtpConfig.fromMap(Map<String, dynamic> map) {
-    return OtpConfig(
-      baseUrl: map['baseUrl'] ?? '',
-      apiKey: map['apiKey'] ?? '',
-      apiSecret: map['apiSecret'] ?? '',
-      otpLength: map['otpLength'] ?? 6,
-      expirySeconds: map['expirySeconds'] ?? 300,
-      allowResend: map['allowResend'] ?? true,
-      resendCooldownSeconds: map['resendCooldownSeconds'] ?? 60,
-      maxResendAttempts: map['maxResendAttempts'] ?? 3,
-      debugMode: map['debugMode'] ?? false,
-    );
-  }
+  /// Get API endpoint for sending OTP
+  String get sendOtpEndpoint => '$baseUrl/api/otp/send';
 
-  /// Get API headers
-  Map<String, String> get headers {
-    final baseHeaders = {
+  /// Get API endpoint for verifying OTP
+  String get verifyOtpEndpoint => '$baseUrl/api/otp/verify';
+
+  /// Get API endpoint for resending OTP
+  String get resendOtpEndpoint => '$baseUrl/api/otp/resend';
+
+  /// Get API endpoint for checking balance
+  String get balanceEndpoint => '$baseUrl/api/balance';
+
+  /// Get default headers with authentication
+  Map<String, String> getHeaders() {
+    return {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'X-API-Key': apiKey,
-      'X-API-Secret': apiSecret,
+      'X-API-KEY': apiKey,
+      'X-API-SECRET': apiSecret,
+      ...?headers,
     };
+  }
 
-    if (customHeaders != null) {
-      baseHeaders.addAll(customHeaders!);
-    }
-
-    return baseHeaders;
+  @override
+  String toString() {
+    return 'OtpConfig(apiKey: *****, apiSecret: *****, otpLength: $otpLength)';
   }
 }
