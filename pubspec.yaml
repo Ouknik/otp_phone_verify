@@ -1,6 +1,6 @@
 ﻿name: otp_phone_verify
 description: "A beautiful and customizable Flutter package for phone number verification using WhatsApp OTP via WhatsOTP.me service. Features multi-language support, beautiful themes, and easy integration."
-version: 1.0.3
+version: 1.0.4
 homepage: https://whatsotp.me
 repository: https://github.com/Ouknik/otp_phone_verify
 issue_tracker: https://github.com/Ouknik/otp_phone_verify/issues
@@ -12,6 +12,12 @@ topics:
   - authentication
   - whatsapp
   - sms
+
+screenshots:
+  - description: "Phone input screen - Enter phone number for verification"
+    path: screenshots/phone_input.jpeg
+  - description: "OTP input screen - Enter verification code"
+    path: screenshots/otp_input.jpeg
 
 funding:
   - https://whatsotp.me

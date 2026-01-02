@@ -1,9 +1,16 @@
 ﻿# OTP Phone Verify
 
-A Flutter library for phone number verification via WhatsApp OTP using the [WhatsOTP.me](https://whatsotp.me) service.
+A beautiful and customizable Flutter package for phone number verification using WhatsApp OTP via [WhatsOTP.me](https://whatsotp.me) service.
 
 [![pub package](https://img.shields.io/pub/v/otp_phone_verify.svg)](https://pub.dev/packages/otp_phone_verify)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+##  Screenshots
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Ouknik/otp_phone_verify/main/screenshots/phone_input.jpeg" width="300" alt="Phone Input Screen">
+  <img src="https://raw.githubusercontent.com/Ouknik/otp_phone_verify/main/screenshots/otp_input.jpeg" width="300" alt="OTP Input Screen">
+</p>
 
 ##  API Documentation
 
@@ -13,15 +20,23 @@ A Flutter library for phone number verification via WhatsApp OTP using the [What
 
 -  Send OTP via WhatsApp to any phone number
 -  Verify OTP codes with local verification (fast & secure)
--  Resend OTP functionality
+-  Resend OTP functionality with countdown timer
 -  Check account balance
--  Customizable UI with ready-to-use dialog
--  Supports international phone numbers
+-  Multiple theme presets (Default, Dark, Blue, Green, Purple)
+-  Multi-language support (English, Arabic, French, Spanish)
+-  RTL support for Arabic
 -  Easy integration with just a few lines of code
 
 ##  Installation
 
 Add this to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  otp_phone_verify: ^1.0.3
+```
+
+Or from GitHub:
 
 ```yaml
 dependencies:
@@ -52,88 +67,86 @@ The easiest way to implement phone verification:
 ```dart
 import 'package:otp_phone_verify/otp_phone_verify.dart';
 
+// Configure your credentials
+final config = OtpConfig(
+  apiKey: 'YOUR_API_KEY',
+  apiSecret: 'YOUR_API_SECRET',
+);
+
 // Show verification dialog
 final result = await OtpPhoneVerifyDialog.show(
   context: context,
-  apiKey: 'YOUR_API_KEY',
-  apiSecret: 'YOUR_API_SECRET',
+  config: config,
+  phoneNumber: '+1234567890',
 );
 
-if (result != null && result.success) {
+if (result != null && result.verified) {
   print('Phone verified successfully!');
-  print('Phone: ${result.phone}');
+  print('Phone: ${result.phoneNumber}');
 }
 ```
 
-### Advanced Usage with Service
-
-For more control, use the `OtpPhoneVerifyService` directly:
+### With Custom Theme
 
 ```dart
-import 'package:otp_phone_verify/otp_phone_verify.dart';
-
-final service = OtpPhoneVerifyService(
-  apiKey: 'YOUR_API_KEY',
-  apiSecret: 'YOUR_API_SECRET',
+final result = await OtpPhoneVerifyDialog.show(
+  context: context,
+  config: config,
+  phoneNumber: '+1234567890',
+  theme: OtpDialogTheme.dark(), // or .blue(), .green(), .purple()
 );
-
-// Send OTP
-final sendResult = await service.sendOtp('+1234567890');
-if (sendResult.success) {
-  print('OTP sent! Request ID: ${sendResult.requestId}');
-  
-  // The OTP code is returned for local verification
-  print('OTP Code: ${sendResult.otpCode}');
-}
-
-// Verify OTP (local verification - fast!)
-final verifyResult = await service.verifyOtp(
-  '+1234567890',
-  '123456',
-  requestId: sendResult.requestId,
-);
-
-if (verifyResult.success) {
-  print('Phone verified!');
-}
-
-// Check balance
-final balance = await service.getBalance();
-print('Balance: ${balance.balance}');
 ```
 
-### Resend OTP
+### With Arabic Language (RTL)
 
 ```dart
-final resendResult = await service.resendOtp(
-  '+1234567890',
-  requestId: previousRequestId,
+final result = await OtpPhoneVerifyDialog.show(
+  context: context,
+  config: config,
+  phoneNumber: '+1234567890',
+  translations: OtpTranslations.arabic(),
+  isRtl: true,
 );
 ```
+
+##  Available Themes
+
+| Theme | Description |
+|-------|-------------|
+| `OtpDialogTheme()` | Default light theme |
+| `OtpDialogTheme.dark()` | Dark mode theme |
+| `OtpDialogTheme.blue()` | Blue accent theme |
+| `OtpDialogTheme.green()` | Green accent theme |
+| `OtpDialogTheme.purple()` | Purple accent theme |
+
+##  Available Languages
+
+| Language | Usage |
+|----------|-------|
+| English | `OtpTranslations()` |
+| Arabic | `OtpTranslations.arabic()` |
+| French | `OtpTranslations.french()` |
+| Spanish | `OtpTranslations.spanish()` |
 
 ##  API Reference
 
-### OtpPhoneVerifyService
+### OtpConfig
 
-| Method | Description |
-|--------|-------------|
-| `sendOtp(phone)` | Send OTP to phone number |
-| `verifyOtp(phone, otp, {requestId})` | Verify OTP code |
-| `resendOtp(phone, {requestId})` | Resend OTP |
-| `getBalance()` | Get account balance |
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `apiKey` | String | Your WhatsOTP.me API key |
+| `apiSecret` | String | Your WhatsOTP.me API secret |
 
-### OtpPhoneVerifyDialog
+### OtpPhoneVerifyDialog.show()
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `context` | BuildContext | Required - Build context |
-| `apiKey` | String | Required - Your API key |
-| `apiSecret` | String | Required - Your API secret |
-| `title` | String | Optional - Dialog title |
-| `phoneLabel` | String | Optional - Phone input label |
-| `otpLabel` | String | Optional - OTP input label |
-| `sendButtonText` | String | Optional - Send button text |
-| `verifyButtonText` | String | Optional - Verify button text |
+| `config` | OtpConfig | Required - API configuration |
+| `phoneNumber` | String | Required - Phone number to verify |
+| `theme` | OtpDialogTheme | Optional - Dialog theme |
+| `translations` | OtpTranslations | Optional - Text translations |
+| `isRtl` | bool | Optional - RTL layout support |
 
 ##  Security
 
@@ -158,6 +171,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [WhatsOTP.me](https://whatsotp.me) - The OTP service provider
 - [API Documentation](https://whatsotp.me/user/api-credentials/997c5586-02ae-463a-bf7b-25878dfcf061/docs) - Complete API docs
 - [GitHub Repository](https://github.com/Ouknik/otp_phone_verify) - Source code
+- [pub.dev](https://pub.dev/packages/otp_phone_verify) - Package page
 
 ##  Support
 
