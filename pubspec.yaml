@@ -1,6 +1,6 @@
 name: otp_phone_verify
 description: A beautiful and customizable Flutter package for phone number verification using OTP with popup dialog. Supports multiple languages (Arabic, French, Spanish) and responsive design.
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/ouknik/otp_phone_verify
 repository: https://github.com/ouknik/otp_phone_verify
 issue_tracker: https://github.com/ouknik/otp_phone_verify/issues
