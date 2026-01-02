@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pinput/pinput.dart';
@@ -112,6 +112,7 @@ class _OtpPhoneVerifyDialogState extends State<OtpPhoneVerifyDialog>
   bool _otpSent = false;
   String? _error;
   String? _requestId;
+  String? _otpCode; // Stored OTP for local verification
   int _resendCountdown = 0;
   int _resendAttempts = 0;
   Timer? _countdownTimer;
@@ -189,6 +190,7 @@ class _OtpPhoneVerifyDialogState extends State<OtpPhoneVerifyDialog>
       if (result.success) {
         _otpSent = true;
         _requestId = result.requestId;
+        _otpCode = result.otpCode; // Store OTP for local verification
         _startResendCountdown();
         if (widget.autoFocusOtp) {
           _otpFocusNode.requestFocus();
@@ -217,6 +219,35 @@ class _OtpPhoneVerifyDialogState extends State<OtpPhoneVerifyDialog>
       HapticFeedback.mediumImpact();
     }
 
+    // LOCAL VERIFICATION: Check OTP code locally if available
+    if (_otpCode != null && _otpCode!.isNotEmpty) {
+      if (!mounted) return;
+      
+      setState(() => _isLoading = false);
+      
+      if (otp == _otpCode) {
+        // OTP matches! Success
+        if (widget.theme.enableHapticFeedback) {
+          HapticFeedback.heavyImpact();
+        }
+
+        final verificationResult = PhoneVerificationResult.success(
+          _phone,
+          requestId: _requestId,
+        );
+
+        widget.onVerificationComplete?.call(verificationResult);
+        Navigator.of(context).pop(verificationResult);
+      } else {
+        // Wrong OTP
+        setState(() {
+          _error = widget.translations.invalidOtpMessage;
+        });
+      }
+      return;
+    }
+
+    // FALLBACK: Server-side verification if no local OTP code
     final result = await _service.verifyOtp(_phone, otp, requestId: _requestId);
 
     if (!mounted) return;
@@ -267,6 +298,7 @@ class _OtpPhoneVerifyDialogState extends State<OtpPhoneVerifyDialog>
       _isLoading = false;
       if (result.success) {
         _requestId = result.requestId;
+        _otpCode = result.otpCode; // Store OTP for local verification
         _otpController.clear();
         _startResendCountdown();
       } else {
@@ -673,3 +705,6 @@ class _OtpPhoneVerifyDialogState extends State<OtpPhoneVerifyDialog>
     );
   }
 }
+
+
+

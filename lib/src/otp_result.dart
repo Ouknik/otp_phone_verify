@@ -7,6 +7,7 @@ class OtpSendResult {
   final String? requestId;
   final String? maskedPhone;
   final int? expiresIn;
+  final String? otpCode; // OTP code for local verification
   final String? message;
   final String? errorCode;
   final String? error;
@@ -16,6 +17,7 @@ class OtpSendResult {
     this.requestId,
     this.maskedPhone,
     this.expiresIn,
+    this.otpCode,
     this.message,
     this.errorCode,
     this.error,
@@ -27,6 +29,7 @@ class OtpSendResult {
       requestId: json['request_id'],
       maskedPhone: json['phone'],
       expiresIn: json['expires_in'],
+      otpCode: json['otp_code'],
       message: json['message'],
       errorCode: json['code'],
       error: json['error'],
@@ -74,6 +77,14 @@ class OtpVerifyResult {
       verified: false,
       error: message,
       errorCode: code,
+    );
+  }
+
+  factory OtpVerifyResult.success() {
+    return const OtpVerifyResult(
+      success: true,
+      verified: true,
+      message: 'Verification successful',
     );
   }
 }
