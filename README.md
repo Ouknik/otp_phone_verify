@@ -1,36 +1,34 @@
 ﻿# OTP Phone Verify
 
-A beautiful and customizable Flutter package for phone number verification using OTP with WhatsOTP service.
+A Flutter library for phone number verification via WhatsApp OTP using the [WhatsOTP.me](https://whatsotp.me) service.
 
 [![pub package](https://img.shields.io/pub/v/otp_phone_verify.svg)](https://pub.dev/packages/otp_phone_verify)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Features
+##  API Documentation
 
-- Beautiful popup dialog for OTP verification
-- Uses [WhatsOTP.me](https://whatsotp.me) service - no need to configure API URL
-- Multiple language support (English, Arabic, French, Spanish)
-- RTL support for Arabic
-- Customizable themes (Default, Dark, Blue, Green, Purple)
-- Resend OTP functionality with countdown timer
-- Responsive design for all screen sizes
-- Easy integration with just API credentials
+**Full API Documentation:** [WhatsOTP.me API Docs](https://whatsotp.me/user/api-credentials/997c5586-02ae-463a-bf7b-25878dfcf061/docs)
 
-## Screenshots
+##  Features
 
-| Default Theme | Dark Theme | Arabic RTL |
-|---------------|------------|------------|
-| ![Default](https://via.placeholder.com/200x400) | ![Dark](https://via.placeholder.com/200x400) | ![Arabic](https://via.placeholder.com/200x400) |
+-  Send OTP via WhatsApp to any phone number
+-  Verify OTP codes with local verification (fast & secure)
+-  Resend OTP functionality
+-  Check account balance
+-  Customizable UI with ready-to-use dialog
+-  Supports international phone numbers
+-  Easy integration with just a few lines of code
 
-## Installation
+##  Installation
 
-Add this to your package's `pubspec.yaml` file:
+Add this to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
   otp_phone_verify:
     git:
       url: https://github.com/Ouknik/otp_phone_verify.git
+      ref: main
 ```
 
 Then run:
@@ -39,194 +37,128 @@ Then run:
 flutter pub get
 ```
 
-## Usage
+##  Getting API Credentials
 
-### Simple Usage
+1. Sign up at [WhatsOTP.me](https://whatsotp.me)
+2. Go to your dashboard and get your API credentials
+3. View full API documentation: [API Docs](https://whatsotp.me/user/api-credentials/997c5586-02ae-463a-bf7b-25878dfcf061/docs)
+
+##  Quick Start
+
+### Basic Usage with Dialog
+
+The easiest way to implement phone verification:
 
 ```dart
 import 'package:otp_phone_verify/otp_phone_verify.dart';
-
-// Just provide your API credentials - URL is automatic!
-final config = OtpConfig(
-  apiKey: 'your-api-key',       // Get from https://whatsotp.me
-  apiSecret: 'your-api-secret', // Get from https://whatsotp.me
-);
 
 // Show verification dialog
 final result = await OtpPhoneVerifyDialog.show(
   context: context,
-  config: config,
-  phoneNumber: '+1234567890',
+  apiKey: 'YOUR_API_KEY',
+  apiSecret: 'YOUR_API_SECRET',
 );
 
-if (result != null && result.verified) {
-  print('Phone verified: ${result.phoneNumber}');
+if (result != null && result.success) {
+  print('Phone verified successfully!');
+  print('Phone: ${result.phone}');
 }
 ```
 
-### With Custom Theme
+### Advanced Usage with Service
+
+For more control, use the `OtpPhoneVerifyService` directly:
 
 ```dart
-final result = await OtpPhoneVerifyDialog.show(
-  context: context,
-  config: config,
-  phoneNumber: '+1234567890',
-  theme: OtpDialogTheme.dark(), // or .blue(), .green(), .purple()
-);
-```
-
-### With Arabic Language (RTL)
-
-```dart
-final result = await OtpPhoneVerifyDialog.show(
-  context: context,
-  config: config,
-  phoneNumber: '+1234567890',
-  translations: OtpTranslations.arabic(),
-  isRtl: true,
-);
-```
-
-### With French Language
-
-```dart
-final result = await OtpPhoneVerifyDialog.show(
-  context: context,
-  config: config,
-  phoneNumber: '+1234567890',
-  translations: OtpTranslations.french(),
-);
-```
-
-### Full Example
-
-```dart
-import 'package:flutter/material.dart';
 import 'package:otp_phone_verify/otp_phone_verify.dart';
 
-class VerifyPhoneScreen extends StatelessWidget {
-  // Simple config - just credentials!
-  final config = OtpConfig(
-    apiKey: 'your-api-key',
-    apiSecret: 'your-api-secret',
-  );
+final service = OtpPhoneVerifyService(
+  apiKey: 'YOUR_API_KEY',
+  apiSecret: 'YOUR_API_SECRET',
+);
 
-  Future<void> verifyPhone(BuildContext context) async {
-    final result = await OtpPhoneVerifyDialog.show(
-      context: context,
-      config: config,
-      phoneNumber: '+1234567890',
-      theme: OtpDialogTheme.blue(),
-      translations: OtpTranslations.arabic(),
-      isRtl: true,
-    );
-
-    if (result != null) {
-      if (result.verified) {
-        // Success! Phone is verified
-        print('Verified: ${result.phoneNumber}');
-      } else if (result.cancelled) {
-        // User cancelled
-        print('Cancelled');
-      } else {
-        // Error
-        print('Error: ${result.error}');
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () => verifyPhone(context),
-      child: Text('Verify Phone'),
-    );
-  }
+// Send OTP
+final sendResult = await service.sendOtp('+1234567890');
+if (sendResult.success) {
+  print('OTP sent! Request ID: ${sendResult.requestId}');
+  
+  // The OTP code is returned for local verification
+  print('OTP Code: ${sendResult.otpCode}');
 }
-```
 
-## Configuration Options
+// Verify OTP (local verification - fast!)
+final verifyResult = await service.verifyOtp(
+  '+1234567890',
+  '123456',
+  requestId: sendResult.requestId,
+);
 
-### OtpConfig
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `apiKey` | String | required | Your WhatsOTP API key |
-| `apiSecret` | String | required | Your WhatsOTP API secret |
-| `otpLength` | int | 6 | Length of OTP code |
-| `allowResend` | bool | true | Enable resend button |
-| `resendCooldownSeconds` | int | 60 | Seconds before resend allowed |
-| `maxResendAttempts` | int | 3 | Maximum resend attempts |
-
-### Available Themes
-
-```dart
-OtpDialogTheme()        // Default (Indigo)
-OtpDialogTheme.dark()   // Dark theme
-OtpDialogTheme.blue()   // Blue theme
-OtpDialogTheme.green()  // Green theme
-OtpDialogTheme.purple() // Purple theme
-```
-
-### Available Languages
-
-```dart
-OtpTranslations()          // English (default)
-OtpTranslations.arabic()   // Arabic
-OtpTranslations.french()   // French
-OtpTranslations.spanish()  // Spanish
-```
-
-## API Endpoints
-
-The library automatically uses these WhatsOTP endpoints:
-
-| Action | Endpoint |
-|--------|----------|
-| Send OTP | `https://whatsotp.me/api/otp/send` |
-| Verify OTP | `https://whatsotp.me/api/otp/verify` |
-| Resend OTP | `https://whatsotp.me/api/otp/resend` |
-| Check Balance | `https://whatsotp.me/api/balance` |
-
-## Getting API Credentials
-
-1. Visit [https://whatsotp.me](https://whatsotp.me)
-2. Create an account
-3. Go to API Credentials section
-4. Copy your API Key and API Secret
-
-## PhoneVerificationResult
-
-```dart
-class PhoneVerificationResult {
-  final bool verified;      // true if phone is verified
-  final String phoneNumber; // The verified phone number
-  final String? requestId;  // Request ID from API
-  final String? error;      // Error message if failed
-  final bool cancelled;     // true if user cancelled
+if (verifyResult.success) {
+  print('Phone verified!');
 }
+
+// Check balance
+final balance = await service.getBalance();
+print('Balance: ${balance.balance}');
 ```
 
-## Requirements
+### Resend OTP
 
-- Dart SDK: ^3.0.0
-- Flutter: >=3.0.0
+```dart
+final resendResult = await service.resendOtp(
+  '+1234567890',
+  requestId: previousRequestId,
+);
+```
 
-## Dependencies
+##  API Reference
 
-- [http](https://pub.dev/packages/http): For API requests
-- [pinput](https://pub.dev/packages/pinput): For OTP input field
+### OtpPhoneVerifyService
 
-## License
+| Method | Description |
+|--------|-------------|
+| `sendOtp(phone)` | Send OTP to phone number |
+| `verifyOtp(phone, otp, {requestId})` | Verify OTP code |
+| `resendOtp(phone, {requestId})` | Resend OTP |
+| `getBalance()` | Get account balance |
 
-MIT License - see [LICENSE](LICENSE) file for details.
+### OtpPhoneVerifyDialog
 
-## Author
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `context` | BuildContext | Required - Build context |
+| `apiKey` | String | Required - Your API key |
+| `apiSecret` | String | Required - Your API secret |
+| `title` | String | Optional - Dialog title |
+| `phoneLabel` | String | Optional - Phone input label |
+| `otpLabel` | String | Optional - OTP input label |
+| `sendButtonText` | String | Optional - Send button text |
+| `verifyButtonText` | String | Optional - Verify button text |
 
-**Ouknik** - [GitHub](https://github.com/Ouknik)
+##  Security
 
-## Support
+- OTP codes are verified locally after being received from the server
+- API credentials are sent via secure headers
+- All communication uses HTTPS
 
-If you find this package helpful, please give it a star on [GitHub](https://github.com/Ouknik/otp_phone_verify)!
+##  Example App
 
-For issues and feature requests, please [open an issue](https://github.com/Ouknik/otp_phone_verify/issues).
+Check out the [example](example/) directory for a complete working example.
+
+##  Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+##  License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+##  Links
+
+- [WhatsOTP.me](https://whatsotp.me) - The OTP service provider
+- [API Documentation](https://whatsotp.me/user/api-credentials/997c5586-02ae-463a-bf7b-25878dfcf061/docs) - Complete API docs
+- [GitHub Repository](https://github.com/Ouknik/otp_phone_verify) - Source code
+
+##  Support
+
+For questions or support, please visit [WhatsOTP.me](https://whatsotp.me) or open an issue on GitHub.
